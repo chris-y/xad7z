@@ -1,18 +1,18 @@
 VERSION		EQU	2
-REVISION	EQU	6
+REVISION	EQU	7
 
 DATE	MACRO
-		dc.b '21.2.2015'
+		dc.b '14.5.2016'
 		ENDM
 
 VERS	MACRO
-		dc.b '7-Zip 2.6'
+		dc.b '7-Zip 2.7'
 		ENDM
 
 VSTRING	MACRO
-		dc.b '7-Zip 2.6 (21.2.2015)',13,10,0
+		dc.b '7-Zip 2.7 (14.5.2016)',13,10,0
 		ENDM
 
 VERSTAG	MACRO
-		dc.b 0,'$VER: 7-Zip 2.6 (21.2.2015)',0
+		dc.b 0,'$VER: 7-Zip 2.7 (14.5.2016)',0
 		ENDM

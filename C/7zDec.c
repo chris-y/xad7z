@@ -38,10 +38,9 @@
 #define k_SPARC 0x3030805
 
 #define k_BZ2 0x040202
+#define k_PPMD 0x30401
 
 #ifdef _7ZIP_PPMD_SUPPPORT
-
-#define k_PPMD 0x30401
 
 typedef struct
 {
@@ -514,12 +513,40 @@ static SRes SzFolder_Decode2(const CSzFolder *folder,
 		}
         RINOK(res);
 	  }
-      #ifdef _7ZIP_PPMD_SUPPPORT
       else if (coder->MethodID == k_PPMD)
       {
+        #ifdef _7ZIP_PPMD_SUPPPORT
         RINOK(SzDecodePpmd(propsData + coder->PropsOffset, coder->PropsSize, inSize, inStream, outBufCur, outSizeCur, allocMain));
+        #else
+		SRes res = SZ_OK;
+		struct PPMdProps pprops;
+		UBYTE *props = propsData + coder->PropsOffset;
+
+		pprops.maxorder = props[0];
+		pprops.suballocsize = (props[1]) |
+						(props[2] << 8) |
+						(props[3] << 16) |
+						(props[4] << 24);
+
+		PPMdSubAllocatorVariantH *alloc=CreateSubAllocatorVariantH(pprops.suballocsize);
+
+		PPMdModelVariantH model;
+		StartPPMdModelVariantH(&model,inStream,alloc,pprops.maxorder,TRUE);
+		outSizeCur = 0;
+
+		while(outSizeCur < outSize)
+		{
+    		int byte=NextPPMdVariantHByte(&model);
+    		if(byte<0) break;
+    		*outBufCur = byte;
+			outBufCur++;
+			outSizeCur++;
+		}
+
+		FreeSubAllocatorVariantH(alloc);
+   //     RINOK(res)
+        #endif
       }
-      #endif
       else
         return SZ_ERROR_UNSUPPORTED;
     }

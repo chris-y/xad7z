@@ -27,7 +27,7 @@ typedef struct _CFileInStream
   struct xadArchiveInfo *ai;
   long posn;
 #ifdef __amigaos4__
-  struct xadMasterIFace *IxadMaster;
+  struct XadMasterIFace *IXadMaster;
 #else
 	struct xadMasterBase *xadMasterBase;
 #endif

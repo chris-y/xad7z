@@ -1,6 +1,6 @@
 stack 500000
 
-gcc -std=c99 -use-dynld -mcrt=newlib -DAMIGA -D__USE_INLINE__ -D_7ZIP_PPMD_SUPPPORT -nostartfiles -o 7z extheader.c 7z.c 7zAlloc.c ../7zBuf.c ../7zCrc.c ../7zDec.c ../7zIn.c ../7zStream.c ../LzmaDec.c ../Lzma2Dec.c ../Bra86.c ../Bcj2.c ../Ppmd7.c ../Ppmd7Dec.c -lbz2 -g -ggdb ;-O3 -funroll-loops -ffast-math -fomit-frame-pointer
+gcc -std=c99 -use-dynld -mcrt=newlib -DAMIGA -D__USE_INLINE__ -D_7ZIP_PPMD_SUPPPORT -nostartfiles -o 7z extheader.c 7z.c 7zAlloc.c ../7zBuf.c ../7zCrc.c ../7zDec.c ../7zIn.c ../7zStream.c ../LzmaDec.c ../Lzma2Dec.c ../Bra86.c ../BraIA64.c ../Bcj2.c ../Delta.c ../Ppmd7.c ../Ppmd7Dec.c -lbz2 -g -ggdb ;-O3 -funroll-loops -ffast-math -fomit-frame-pointer
 
 ;PPMd/CarrylessRangeCoder.c PPMd/PPMdContext.c PPMd/PPMdSubAllocatorVariantH.c PPMd/PPMdVariantH.c
 

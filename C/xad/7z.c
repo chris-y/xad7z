@@ -50,7 +50,7 @@ SRes SzFileReadImp(void *object, void *buffer, size_t *size)
 {
   CFileXadInStream *s = (CFileXadInStream *)object;
 #ifdef __amigaos4__
-	struct xadMasterIFace *IxadMaster = s->IxadMaster;
+	struct XadMasterIFace *IXadMaster = s->IXadMaster;
 #else
 	struct xadMasterBase *xadMasterBase = s->xadMasterBase;
 #endif
@@ -80,7 +80,7 @@ SRes SzFileSeekImp(void *object, Int64 *pos, ESzSeek method)
 {
   CFileXadInStream *s = (CFileXadInStream *)object;
 #ifdef __amigaos4__
-	struct xadMasterIFace *IxadMaster = s->IxadMaster;
+	struct XadMasterIFace *IXadMaster = s->IXadMaster;
 #else
 	struct xadMasterBase *xadMasterBase = s->xadMasterBase;
 #endif
@@ -235,7 +235,7 @@ long sztoxaderr(long res)
 
 #ifdef __amigaos4__
 BOOL sz_RecogData(ULONG size, STRPTR data,
-struct xadMasterIFace *IxadMaster)
+struct XadMasterIFace *IXadMaster)
 #else
 ASM(BOOL) sz_RecogData(REG(d0, ULONG size), REG(a0, STRPTR data),
 REG(a6, struct xadMasterBase *xadMasterBase))
@@ -249,7 +249,7 @@ REG(a6, struct xadMasterBase *xadMasterBase))
 
 #ifdef __amigaos4__
 LONG sz_GetInfo(struct xadArchiveInfo *ai,
-struct xadMasterIFace *IxadMaster)
+struct XadMasterIFace *IXadMaster)
 #else
 ASM(LONG) sz_GetInfo(REG(a0, struct xadArchiveInfo *ai),
 REG(a6, struct xadMasterBase *xadMasterBase))
@@ -285,7 +285,7 @@ REG(a6, struct xadMasterBase *xadMasterBase))
 
   archiveStream->ai = ai;
 #ifdef __amigaos4__
-  archiveStream->IxadMaster = IxadMaster;
+  archiveStream->IXadMaster = IXadMaster;
 #else
   archiveStream->xadMasterBase = xadMasterBase;
 #endif
@@ -349,7 +349,7 @@ REG(a6, struct xadMasterBase *xadMasterBase))
 
 #ifdef __amigaos4__
 LONG sz_UnArchive(struct xadArchiveInfo *ai,
-struct xadMasterIFace *IxadMaster)
+struct XadMasterIFace *IXadMaster)
 #else
 ASM(LONG) sz_UnArchive(REG(a0, struct xadArchiveInfo *ai),
 REG(a6, struct xadMasterBase *xadMasterBase))
@@ -436,7 +436,7 @@ REG(a6, struct xadMasterBase *xadMasterBase))
 
 #ifdef __amigaos4__
 void sz_Free(struct xadArchiveInfo *ai,
-struct xadMasterIFace *IxadMaster)
+struct XadMasterIFace *IXadMaster)
 #else
 ASM(void) sz_Free(REG(a0, struct xadArchiveInfo *ai),
 REG(a6, struct xadMasterBase *xadMasterBase))

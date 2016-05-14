@@ -1,6 +1,6 @@
 stack 500000
 
-gcc -std=c99 -mcrt=newlib -D__USE_INLINE__ -nostartfiles -D_7ZIP_PPMD_SUPPPORT -o 7z extheader.c 7z.c ../7zAlloc.c ../7zBuf.c ../7zCrc.c ../7zCrcOpt.c ../7zDec.c ../7zArcIn.c ../7zStream.c ../LzmaDec.c ../Lzma2Dec.c ../Bra.c ../Bra86.c ../Bcj2.c ../Ppmd7.c ../Ppmd7Dec.c -lbz2 -O2 -funroll-loops -ffast-math -fomit-frame-pointer -finline-functions
+gcc -std=c99 -mcrt=newlib -D__USE_INLINE__ -nostartfiles -D_7ZIP_PPMD_SUPPPORT -o 7z extheader.c 7z.c ../7zAlloc.c ../7zBuf.c ../7zCrc.c ../7zCrcOpt.c ../7zDec.c ../7zArcIn.c ../7zStream.c ../LzmaDec.c ../Lzma2Dec.c ../Bra.c ../Bra86.c ../BraIA64.c ../Bcj2.c ../Delta.c ../Ppmd7.c ../Ppmd7Dec.c -lbz2 -O2 -funroll-loops -ffast-math -fomit-frame-pointer -finline-functions
 
 ; -mcrt=newlib -use-dynld
 ; -g -ggdb 
@@ -14,3 +14,4 @@ copy 7z libs:xad
 echo "build finished"
 expunge all
 
+wait 10
