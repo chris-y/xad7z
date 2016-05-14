@@ -1,0 +1,58 @@
+(welcome)
+
+(set @default-dest "libs:xad")
+
+(if (>= (/ (getversion) 65536) 50)
+	(
+		(set #os-ver 0)
+		(set #os4 "AmigaOS 4.0 or later (PowerPC)")
+	)
+;else
+	(
+		(set #os-ver 1)
+		(set #os4 "")
+	)
+)
+
+(set #os-ver
+	(askchoice
+		(prompt "Please select the version of the OS you are using")
+		(help @askchoice-help)
+		(choices #os4
+				"Versions prior to AmigaOS 4.0 (680x0)")
+		(default #os-ver)
+	)
+)
+
+(if (= #os-ver 0)
+	(
+		(set #source "OS4/7z")
+
+		(if (= (exists "ENVARC:sys/def_7z.info") 0)
+			(
+				(copyfiles
+					(prompt "Copying def_7z icon")
+					(source "OS4/def_7z.info")
+					(dest "ENVARC:sys")
+					(help "This is a default icon for 7-Zip files, "
+						"created by Martin Merz (www.masonicons.de)\n\n"
+						@copyfiles-help)
+				)
+			)
+		)
+	)
+;else
+	(
+		(set #source "OS3/7z")
+	)
+)
+
+(copylib
+	(prompt "Check 7-Zip XAD client is newer than any existing version!")
+	(help @copylib-help)
+	(source #source)
+	(dest @default-dest)
+	(confirm "expert")
+)
+
+(exit "You must reboot for the client to take effect")

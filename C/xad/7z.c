@@ -111,91 +111,18 @@ SRes SzFileSeekImp(void *object, Int64 *pos, ESzSeek method)
   return SZ_ERROR_FAIL;
 }
 
+#define WINDOWS_TICK 10000000
+#define SEC_TO_AMIGA_EPOCH 11896070400LL
+
+ULONG WindowsTickToAmigaSeconds(long long windowsTicks)
+{
+     return (ULONG)(windowsTicks / WINDOWS_TICK - SEC_TO_AMIGA_EPOCH);
+}
+
 ULONG ConvertFileTime(CNtfsFileTime *ft)
 {
-#define PERIOD_4 (4 * 365 + 1)
-#define PERIOD_100 (PERIOD_4 * 25 - 1)
-#define PERIOD_400 (PERIOD_100 * 4 + 1)
-	struct ClockData cd;
-	ULONG adate = 0;
-	struct Library *UtilityBase;
-#ifdef __amigaos4__
-struct ExecIFace *IExec = (struct ExecIFace *)(*(struct ExecBase **)4)->MainInterface;
-struct UtilityIFace *IUtility;
-#else
-struct Library *SysBase = *(struct ExecBase **)4;
-#endif
-
-  unsigned year, mon, day, hour, min, sec;
-  UInt64 v64 = ft->Low | ((UInt64)ft->High << 32);
-  Byte ms[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-  unsigned temp;
-  UInt32 v; 
-  v64 /= 10000000;
-  sec = (unsigned)(v64 % 60);
-  v64 /= 60;
-  min = (unsigned)(v64 % 60);
-  v64 /= 60;
-  hour = (unsigned)(v64 % 24);
-  v64 /= 24;
-
-  v = (UInt32)v64;
-
-  year = (unsigned)(1601 + v / PERIOD_400 * 400);
-  v %= PERIOD_400;
-
-  temp = (unsigned)(v / PERIOD_100);
-  if (temp == 4)
-    temp = 3;
-  year += temp * 100;
-  v -= temp * PERIOD_100;
-
-  temp = v / PERIOD_4;
-  if (temp == 25)
-    temp = 24;
-  year += temp * 4;
-  v -= temp * PERIOD_4;
-
-  temp = v / 365;
-  if (temp == 4)
-    temp = 3;
-  year += temp;
-  v -= temp * 365;
-
-  if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))
-    ms[1] = 29;
-  for (mon = 1; mon <= 12; mon++)
-  {
-    unsigned s = ms[mon - 1];
-    if (v < s)
-      break;
-    v -= s;
-  }
-  day = (unsigned)v + 1;
-
-	cd.sec = sec;
-	cd.min = min;
-	cd.hour = hour;
-	cd.mday = day;
-	cd.month = mon;
-	cd.year = year;
-	cd.wday = 0;
-
-	if(UtilityBase = OpenLibrary("utility.library",37))
-	{
-#ifdef __amigaos4__
-		if(IUtility = (struct UtilityIFace *)GetInterface(UtilityBase,"main",1,NULL))
-		{
-#endif
-			adate = Date2Amiga(&cd);
-#ifdef __amigaos4__
-			DropInterface((struct Interface *)IUtility);
-		}
-#endif
-		CloseLibrary(UtilityBase);
-	}
-
-	return(adate);
+	UInt64 v64 = ft->Low | ((UInt64)ft->High << 32);
+	return(WindowsTickToAmigaSeconds(v64));
 }
 
 long sztoxaderr(long res)
