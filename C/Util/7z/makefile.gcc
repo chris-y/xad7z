@@ -1,5 +1,5 @@
 PROG = 7zDec
-CXX = g++
+CXX = gcc
 LIB =
 RM = rm -f
 CFLAGS = -c -O2 -Wall

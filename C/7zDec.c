@@ -16,7 +16,12 @@
 #include "Lzma2Dec.h"
 #ifdef _7ZIP_PPMD_SUPPPORT
 #include "Ppmd7.h"
+#else
+#include "XAD/PPMd/PPMdVariantH.h"
 #endif
+
+#include <bzlib.h>
+#include "XAD/7zAlloc.h"
 
 #define k_Copy 0
 #define k_LZMA2 0x21
@@ -28,9 +33,11 @@
 #define k_SPARC 0x03030805
 #define k_BCJ2  0x0303011B
 
-#ifdef _7ZIP_PPMD_SUPPPORT
+#define k_BZ2 0x040202
 
 #define k_PPMD 0x30401
+
+#ifdef _7ZIP_PPMD_SUPPPORT //moved
 
 typedef struct
 {
@@ -249,9 +256,10 @@ static Bool IS_MAIN_METHOD(UInt32 m)
     case k_Copy:
     case k_LZMA:
     case k_LZMA2:
-    #ifdef _7ZIP_PPMD_SUPPPORT
+    case k_BZ2:
+//    #ifdef _7ZIP_PPMD_SUPPPORT
     case k_PPMD:
-    #endif
+//    #endif
       return True;
   }
   return False;
@@ -297,6 +305,7 @@ static SRes CheckSupportedFolder(const CSzFolder *f)
     {
       case k_BCJ:
       case k_ARM:
+      case k_PPC:
         break;
       default:
         return SZ_ERROR_UNSUPPORTED;
@@ -397,12 +406,109 @@ static SRes SzFolder_Decode2(const CSzFolder *folder,
       {
         RINOK(SzDecodeLzma2(propsData + coder->PropsOffset, coder->PropsSize, inSize, inStream, outBufCur, outSizeCur, allocMain));
       }
+      else if(coder->MethodID == k_BZ2)
+      {
+		int bzres = BZ_OK;
+		SRes res = SZ_OK;
+		bz_stream bzstrm;
+
+		bzstrm.bzalloc = BzAlloc;
+		bzstrm.bzfree = BzFree;
+		bzstrm.opaque = NULL;
+
+		void *inBuffer = NULL;
+		size_t size = inSize;
+
+		bzres = BZ2_bzDecompressInit(&bzstrm,0,0);
+		if(bzres == BZ_OK) res = SZ_OK; else res=SZ_ERROR_MEM;
+        RINOK(res)
+
+		bzstrm.next_out = outBufCur;
+		bzstrm.avail_out = outSizeCur;
+
+		do
+		{
+			size=inSize;
+			inBuffer = (void *)IAlloc_Alloc(allocMain, size);
+	    	RINOK(LookInStream_Read(inStream, inBuffer, size));
+			inSize -= size;
+
+			bzstrm.next_in = (char *)(inBuffer);
+			bzstrm.avail_in = size;
+
+			do
+			{
+				bzres = BZ2_bzDecompress(&bzstrm);
+			}while(bzstrm.avail_in>0 && bzres==BZ_OK);
+
+			IAlloc_Free(allocMain, inBuffer);
+
+		}while (bzres==BZ_OK);
+
+		BZ2_bzDecompressEnd(&bzstrm);
+
+		switch(bzres)
+		{
+			case BZ_CONFIG_ERROR:
+			case BZ_PARAM_ERROR:
+				res=SZ_ERROR_FAIL;
+			break;
+			case BZ_MEM_ERROR:
+			case BZ_OUTBUFF_FULL:
+				res=SZ_ERROR_MEM;
+			break;
+			case BZ_DATA_ERROR_MAGIC:
+			case BZ_UNEXPECTED_EOF:
+				res=SZ_ERROR_DATA;
+			break;
+			case BZ_DATA_ERROR:
+				res=SZ_ERROR_CRC;
+			break;
+			case BZ_OK:
+				res=SZ_OK;
+			break;
+			default:
+				res=SZ_OK;
+			break;
+		}
+        RINOK(res);
+
+
+
+
+      }
       else
       {
         #ifdef _7ZIP_PPMD_SUPPPORT
         RINOK(SzDecodePpmd(propsData + coder->PropsOffset, coder->PropsSize, inSize, inStream, outBufCur, outSizeCur, allocMain));
         #else
-        return SZ_ERROR_UNSUPPORTED;
+		SRes res = SZ_OK;
+		struct PPMdProps pprops;
+		UBYTE *props = propsData + coder->PropsOffset;
+
+		pprops.maxorder = props[0];
+		pprops.suballocsize = (props[1]) |
+						(props[2] << 8) |
+						(props[3] << 16) |
+						(props[4] << 24);
+
+		PPMdSubAllocatorVariantH *alloc=CreateSubAllocatorVariantH(pprops.suballocsize);
+
+		PPMdModelVariantH model;
+		StartPPMdModelVariantH(&model,inStream,alloc,pprops.maxorder,TRUE);
+		outSizeCur = 0;
+
+		while(outSizeCur < outSize)
+		{
+    		int byte=NextPPMdVariantHByte(&model);
+    		if(byte<0) break;
+    		*outBufCur = byte;
+			outBufCur++;
+			outSizeCur++;
+		}
+
+		FreeSubAllocatorVariantH(alloc);
+   //     RINOK(res)
         #endif
       }
     }
@@ -445,6 +551,7 @@ static SRes SzFolder_Decode2(const CSzFolder *folder,
           break;
         }
         CASE_BRA_CONV(ARM)
+        CASE_BRA_CONV(PPC)
         default:
           return SZ_ERROR_UNSUPPORTED;
       }

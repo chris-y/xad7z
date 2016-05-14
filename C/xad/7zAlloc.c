@@ -1,8 +1,9 @@
 /* 7zAlloc.c -- Allocation functions
-2010-10-29 : Igor Pavlov : Public domain */
+2008-03-28
+Igor Pavlov
+Public domain */
 
-#include "Precomp.h"
-
+#include <stdlib.h>
 #include "7zAlloc.h"
 
 /* #define _SZ_ALLOC_DEBUG */
@@ -27,9 +28,9 @@ int g_allocCountTemp = 0;
 struct ExecIFace *IExec;
 #else
 //struct Library *SysBase;
-#define MEMF_PRIVATE MEMF_ANY
 #endif
 #endif
+
 
 void *SzAlloc(void *p, size_t size)
 {
@@ -59,7 +60,6 @@ void SzFree(void *p, void *address)
     fprintf(stderr, "\nFree; count = %10d", g_allocCount);
   }
   #endif
-
 #ifdef __amigaos4__
 IExec = (struct ExecIFace *)(*(struct ExecBase **)4)->MainInterface;
 #else
