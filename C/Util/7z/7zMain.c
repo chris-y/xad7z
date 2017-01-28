@@ -1,5 +1,5 @@
 /* 7zMain.c - Test application for 7z Decoder
-2015-08-02 : Igor Pavlov : Public domain */
+2016-05-16 : Igor Pavlov : Public domain */
 
 #include "Precomp.h"
 
@@ -22,6 +22,9 @@
 #include <errno.h>
 #endif
 #endif
+
+ULONG __slab_max_size = 2048; /* Enable clib2's slab allocator */
+const char __attribute__ ((unused)) stack[] = "\0$STACK:100000\0";
 
 static ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
@@ -227,6 +230,22 @@ static WRes OutFile_OpenUtf16(CSzFile *p, const UInt16 *name)
   #endif
 }
 
+static WRes OutFile_chmodUtf16(const UInt16 *name, mode_t mode)
+{
+  #ifdef USE_WINDOWS_FILE
+  return OutFile_OpenW(p, name);
+  #else
+  CBuf buf;
+  WRes res = 0;
+  Buf_Init(&buf);
+  RINOK(Utf16_To_Char(&buf, name MY_FILE_CODE_PAGE_PARAM));
+  chmod((const char *)buf.data, mode);
+  Buf_Free(&buf, &g_Alloc);
+  return res;
+  #endif
+}
+
+
 static SRes PrintString(const UInt16 *s)
 {
   CBuf buf;
@@ -310,10 +329,10 @@ static void ConvertFileTimeToString(const CNtfsFileTime *nt, char *s)
     ms[1] = 29;
   for (mon = 0;; mon++)
   {
-    unsigned s = ms[mon];
-    if (v < s)
+    unsigned d = ms[mon];
+    if (v < d)
       break;
-    v -= s;
+    v -= d;
   }
   s = UIntToStr(s, year, 4); *s++ = '-';
   UIntToStr_2(s, mon + 1); s[2] = '-'; s += 3;
@@ -572,6 +591,8 @@ int MY_CDECL main(int numargs, char *args[])
           #ifdef USE_WINDOWS_FILE
           if (SzBitWithVals_Check(&db.Attribs, i))
             SetFileAttributesW(destPath, db.Attribs.Vals[i]);
+#else
+			OutFile_chmodUtf16(destPath, S_IRWXU);
           #endif
         }
         printf("\n");

@@ -1,5 +1,5 @@
 PROG = 7zDec
-CXX = gcc
+CXX = /opt/netsurf/m68k-unknown-amigaos/cross/bin/m68k-unknown-amigaos-gcc
 LIB =
 RM = rm -f
 CFLAGS = -c -O2 -Wall
