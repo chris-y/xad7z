@@ -16,14 +16,18 @@
 #include "Delta.h"
 #include "LzmaDec.h"
 #include "Lzma2Dec.h"
+#ifdef XAD7Z_PPMD
 #ifdef _7ZIP_PPMD_SUPPPORT
 #include "Ppmd7.h"
 #else
 #include "XAD/PPMd/PPMdVariantH.h"
 #endif
+#endif
 
+#ifdef XAD7Z_BZ2
 #include <bzlib.h>
 #include "XAD/7zAlloc.h"
+#endif
 
 #define k_Copy 0
 #define k_Delta 3
@@ -40,6 +44,7 @@
 #define k_BZ2 0x040202
 #define k_PPMD 0x30401
 
+#ifdef XAD7Z_PPMD
 #ifdef _7ZIP_PPMD_SUPPPORT
 
 typedef struct
@@ -134,7 +139,7 @@ static SRes SzDecodePpmd(const Byte *props, unsigned propsSize, UInt64 inSize, I
 }
 
 #endif
-
+#endif
 
 static SRes SzDecodeLzma(const Byte *props, unsigned propsSize, UInt64 inSize, ILookInStream *inStream,
     Byte *outBuffer, SizeT outSize, ISzAlloc *allocMain)
@@ -448,6 +453,7 @@ static SRes SzFolder_Decode2(const CSzFolder *folder,
       #endif
 	  else if(coder->MethodID == k_BZ2)
       {
+#ifdef XAD7Z_BZ2
 		int bzres = BZ_OK;
 		SRes res = SZ_OK;
 		bz_stream bzstrm;
@@ -512,9 +518,11 @@ static SRes SzFolder_Decode2(const CSzFolder *folder,
 			break;
 		}
         RINOK(res);
+#endif
 	  }
       else if (coder->MethodID == k_PPMD)
       {
+#ifdef XAD7Z_PPMD
         #ifdef _7ZIP_PPMD_SUPPPORT
         RINOK(SzDecodePpmd(propsData + coder->PropsOffset, coder->PropsSize, inSize, inStream, outBufCur, outSizeCur, allocMain));
         #else
@@ -546,6 +554,7 @@ static SRes SzFolder_Decode2(const CSzFolder *folder,
 		FreeSubAllocatorVariantH(alloc);
    //     RINOK(res)
         #endif
+#endif
       }
       else
         return SZ_ERROR_UNSUPPORTED;

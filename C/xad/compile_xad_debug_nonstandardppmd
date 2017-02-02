@@ -1,6 +1,6 @@
 stack 500000
 
-gcc -gstabs -std=c99 -mcrt=newlib -D__USE_INLINE__ -nostartfiles -o 7z extheader.c 7z.c ../7zAlloc.c ../7zBuf.c ../7zCrc.c ../7zCrcOpt.c ../7zDec.c ../7zArcIn.c ../7zStream.c ../LzmaDec.c ../Lzma2Dec.c ../Bra.c ../Bra86.c ../Bcj2.c PPMd/CarrylessRangeCoder.c PPMd/PPMdContext.c PPMd/PPMdSubAllocatorVariantH.c PPMd/PPMdVariantH.c -lbz2
+gcc -gstabs -std=c99 -mcrt=newlib -D__USE_INLINE__ -DXAD7Z_PPMD -DXAD7Z_BZ2 -nostartfiles -o 7z extheader.c 7z.c ../7zAlloc.c ../7zBuf.c ../7zCrc.c ../7zCrcOpt.c ../7zDec.c ../7zArcIn.c ../7zStream.c ../LzmaDec.c ../Lzma2Dec.c ../Bra.c ../Bra86.c ../Bcj2.c PPMd/CarrylessRangeCoder.c PPMd/PPMdContext.c PPMd/PPMdSubAllocatorVariantH.c PPMd/PPMdVariantH.c -lbz2
 
 ;PPMd/CarrylessRangeCoder.c PPMd/PPMdContext.c PPMd/PPMdSubAllocatorVariantH.c PPMd/PPMdVariantH.c
 
