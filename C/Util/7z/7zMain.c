@@ -24,7 +24,7 @@
 #endif
 
 ULONG __slab_max_size = 2048; /* Enable clib2's slab allocator */
-const char __attribute__ ((unused)) stack[] = "\0$STACK:100000\0";
+//const char __attribute__ ((unused)) stack[] = "\0$STACK:100000\0";
 
 static ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
@@ -430,6 +430,9 @@ int MY_CDECL main(int numargs, char *args[])
   
   if (res == SZ_OK)
   {
+    UInt64 totalSize = 0;
+    int files = 0;
+
     char *command = args[1];
     int listCommand = 0, testCommand = 0, fullPaths = 0;
     
@@ -446,7 +449,6 @@ int MY_CDECL main(int numargs, char *args[])
     if (res == SZ_OK)
     {
       UInt32 i;
-
       /*
       if you need cache, use these 3 variables.
       if you use external function, you can make these variable as static.
@@ -497,7 +499,10 @@ int MY_CDECL main(int numargs, char *args[])
 
           fileSize = SzArEx_GetFileSize(&db, i);
           UInt64ToStr(fileSize, s);
-          
+
+          totalSize += fileSize;
+          files++;
+
           if (SzBitWithVals_Check(&db.MTime, i))
             ConvertFileTimeToString(&db.MTime.Vals[i], t);
           else
@@ -599,6 +604,14 @@ int MY_CDECL main(int numargs, char *args[])
       }
       IAlloc_Free(&allocImp, outBuffer);
     }
+	  if (listCommand)
+	  {
+		char s[32];
+		UInt64ToStr(totalSize, s);
+
+		printf("               Total: %10s  (%d files)\n", s, files);
+	  }
+
   }
 
   SzArEx_Free(&db, &allocImp);
