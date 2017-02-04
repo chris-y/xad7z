@@ -13,6 +13,10 @@
 #include "../../7zFile.h"
 #include "../../7zVersion.h"
 
+#ifdef AMIGA
+#include "amiga.h"
+#endif
+
 #ifndef USE_WINDOWS_FILE
 /* for mkdir */
 #ifdef _WIN32

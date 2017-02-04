@@ -4,12 +4,15 @@ LIB =
 RM = rm -f
 CFLAGS = -c -O2 -Wall
 
-OBJS = 7zMain.o 7zAlloc.o 7zArcIn.o 7zBuf.o 7zBuf2.o 7zCrc.o 7zCrcOpt.o 7zDec.o CpuArch.o Delta.o LzmaDec.o Lzma2Dec.o Bra.o Bra86.o BraIA64.o Bcj2.o Ppmd7.o Ppmd7Dec.o 7zFile.o 7zStream.o
+OBJS = 7zMain.o 7zAlloc.o 7zArcIn.o 7zBuf.o 7zBuf2.o 7zCrc.o 7zCrcOpt.o 7zDec.o CpuArch.o Delta.o LzmaDec.o Lzma2Dec.o Bra.o Bra86.o BraIA64.o Bcj2.o Ppmd7.o Ppmd7Dec.o 7zFile.o 7zStream.o amiga.o
 
 all: $(PROG)
 
 $(PROG): $(OBJS)
 	$(CXX) -o $(PROG) $(LDFLAGS) $(OBJS) $(LIB)
+
+amiga.o: amiga.c
+	$(CXX) $(CFLAGS) amiga.c
 
 7zMain.o: 7zMain.c
 	$(CXX) $(CFLAGS) 7zMain.c
