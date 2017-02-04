@@ -29,6 +29,7 @@
 
 ULONG __slab_max_size = 2048; /* Enable clib2's slab allocator */
 //const char __attribute__ ((unused)) stack[] = "\0$STACK:100000\0";
+const char __attribute__ ((unused)) ver[] = "\0$VER:7zDec 1.2 (4.2.2017)\0";
 
 static ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
@@ -366,6 +367,26 @@ static void GetAttribString(UInt32 wa, Bool isDir, char *s)
   #endif
 }
 
+#ifdef AMIGA
+static LONG Match(const char *patt, const UInt16 *s)
+{
+  CBuf buf;
+  SRes res;
+	LONG matched = 0;
+
+  Buf_Init(&buf);
+  res = Utf16_To_Char(&buf, s
+      #ifndef _USE_UTF8
+      , CP_OEMCP
+      #endif
+      );
+  if (res == SZ_OK)
+	matched = amiga7z_match_pattern(patt, (const char *)buf.data);
+  Buf_Free(&buf, &g_Alloc);
+  return matched;
+}
+#endif
+
 // #define NUM_PARENTS_MAX 128
 
 int MY_CDECL main(int numargs, char *args[])
@@ -380,12 +401,18 @@ int MY_CDECL main(int numargs, char *args[])
   size_t tempSize = 0;
   // UInt32 parents[NUM_PARENTS_MAX];
 
+#ifdef AMIGA
+	if(amiga7z_init_libs() == FALSE) {
+		return RETURN_FAIL;
+	}
+#endif
+
   printf("\n7z ANSI-C Decoder " MY_VERSION_COPYRIGHT_DATE "\n\n");
 
   if (numargs == 1)
   {
     printf(
-      "Usage: 7zDec <command> <archive_name>\n\n"
+      "Usage: 7zDec <command> <archive_name> <pattern>\n\n"
       "<Commands>\n"
       "  e: Extract files from archive (without using directory names)\n"
       "  l: List contents of archive\n"
@@ -461,6 +488,13 @@ int MY_CDECL main(int numargs, char *args[])
       Byte *outBuffer = 0; /* it must be 0 before first call for each new archive. */
       size_t outBufferSize = 0;  /* it can have any value before first call (if outBuffer = 0) */
 
+#ifdef AMIGA
+	char *amiga7z_patt = NULL;
+	if (numargs >= 4) {
+		amiga7z_patt = amiga7z_parse_pattern(args[3]);
+	}
+#endif
+
       for (i = 0; i < db.NumFiles; i++)
       {
         size_t offset = 0;
@@ -493,6 +527,12 @@ int MY_CDECL main(int numargs, char *args[])
           break;
         }
         */
+
+#ifdef AMIGA
+		if(Match(amiga7z_patt, temp) == FALSE) {
+			continue;
+		}
+#endif
 
         if (listCommand)
         {
@@ -607,6 +647,14 @@ int MY_CDECL main(int numargs, char *args[])
         printf("\n");
       }
       IAlloc_Free(&allocImp, outBuffer);
+
+#ifdef AMIGA
+		if(amiga7z_patt != NULL) {
+			free(amiga7z_patt);
+			amiga7z_patt = NULL;
+		}
+#endif
+
     }
 	  if (listCommand)
 	  {
@@ -623,6 +671,10 @@ int MY_CDECL main(int numargs, char *args[])
 
   File_Close(&archiveStream.file);
   
+#ifdef AMIGA
+	amiga7z_close_libs();
+#endif
+
   if (res == SZ_OK)
   {
     printf("\nEverything is Ok\n");
