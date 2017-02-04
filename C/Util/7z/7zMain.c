@@ -412,7 +412,7 @@ int MY_CDECL main(int numargs, char *args[])
   if (numargs == 1)
   {
     printf(
-      "Usage: 7zDec <command> <archive_name> <pattern>\n\n"
+      "Usage: 7zDec <command> <archive_name> [pattern]\n\n"
       "<Commands>\n"
       "  e: Extract files from archive (without using directory names)\n"
       "  l: List contents of archive\n"
