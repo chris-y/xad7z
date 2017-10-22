@@ -119,10 +119,17 @@ ULONG WindowsTickToAmigaSeconds(long long windowsTicks)
      return (ULONG)(windowsTicks / WINDOWS_TICK - SEC_TO_AMIGA_EPOCH);
 }
 
+UInt64 swapLong(UInt64 x) {
+x = (x & 0x00000000FFFFFFFF) << 32 | (x & 0xFFFFFFFF00000000) >> 32;
+x = (x & 0x0000FFFF0000FFFF) << 16 | (x & 0xFFFF0000FFFF0000) >> 16;
+x = (x & 0x00FF00FF00FF00FF) << 8  | (x & 0xFF00FF00FF00FF00) >> 8;
+return x;
+}
+
 ULONG ConvertFileTime(CNtfsFileTime *ft)
 {
-	UInt64 v64 = ft->Low | ((UInt64)ft->High << 32);
-	return(WindowsTickToAmigaSeconds(v64));
+	UInt64 v64 = ((UInt64)(ft->Low & 0x00000000FFFFFFFF) << 32) | ft->High;
+	return(WindowsTickToAmigaSeconds(swapLong(v64)));
 }
 
 long sztoxaderr(long res)
