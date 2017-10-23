@@ -112,7 +112,7 @@ SRes SzFileSeekImp(void *object, Int64 *pos, ESzSeek method)
 }
 
 #define WINDOWS_TICK 10000000
-#define SEC_TO_AMIGA_EPOCH 11896070400LL
+#define SEC_TO_AMIGA_EPOCH 11896934400LL
 
 ULONG WindowsTickToAmigaSeconds(UInt64 windowsTicks)
 {
@@ -128,8 +128,8 @@ return x;
 
 ULONG ConvertFileTime(CNtfsFileTime *ft)
 {
-	UInt64 v64 = (UInt64)ft->Low << 32 | ft->High;
-	return(WindowsTickToAmigaSeconds(swapLong(v64)));
+	UInt64 v64 = ft->Low | ((UInt64)ft->High << 32);
+	return(WindowsTickToAmigaSeconds(v64));
 }
 
 long sztoxaderr(long res)
@@ -260,7 +260,7 @@ REG(a6, struct xadMasterBase *xadMasterBase))
 							XAD_CSTRING, namebuf, // no *
 							TAG_DONE))) return(XADERR_NOMEMORY);
 
-    xadConvertDates(XAD_DATEAMIGA, ConvertFileTime(db->MTime.Vals),
+    xadConvertDates(XAD_DATEAMIGA, ConvertFileTime(&db->MTime.Vals[i]),
 					XAD_GETDATEXADDATE, &fi->xfi_Date,
 					TAG_DONE);
 
