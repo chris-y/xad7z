@@ -1,7 +1,9 @@
 /* 7zAlloc.c -- Allocation functions
-2010-10-29 : Igor Pavlov : Public domain */
+2017-04-03 : Igor Pavlov : Public domain */
 
 #include "Precomp.h"
+
+#include <stdlib.h>
 
 #include "7zAlloc.h"
 
@@ -31,7 +33,7 @@ struct ExecIFace *IExec;
 #endif
 #endif
 
-void *SzAlloc(void *p, size_t size)
+void *SzAlloc(ISzAllocPtr p, size_t size)
 {
   p = p;
   if (size == 0)
@@ -49,7 +51,7 @@ IExec = (struct ExecIFace *)(*(struct ExecBase **)4)->MainInterface;
   return AllocVec(size,MEMF_PRIVATE | MEMF_CLEAR);
 }
 
-void SzFree(void *p, void *address)
+void SzFree(ISzAllocPtr p, void *address)
 {
   p = p;
   #ifdef _SZ_ALLOC_DEBUG
@@ -68,7 +70,7 @@ IExec = (struct ExecIFace *)(*(struct ExecBase **)4)->MainInterface;
 FreeVec(address);
 }
 
-void *SzAllocTemp(void *p, size_t size)
+void *SzAllocTemp(ISzAllocPtr p, size_t size)
 {
   p = p;
   if (size == 0)
@@ -88,7 +90,7 @@ IExec = (struct ExecIFace *)(*(struct ExecBase **)4)->MainInterface;
   return AllocVec(size,MEMF_PRIVATE | MEMF_CLEAR);
 }
 
-void SzFreeTemp(void *p, void *address)
+void SzFreeTemp(ISzAllocPtr p, void *address)
 {
   p = p;
   #ifdef _SZ_ALLOC_DEBUG
