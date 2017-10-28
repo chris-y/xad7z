@@ -2,7 +2,7 @@ Short:        XAD (UnArc) client for 7-Zip archives
 Uploader:     chris@unsatisfactorysoftware.co.uk (Chris Young)
 Author:       Chris Young, Igor Pavlov, Dag Ågren
 Type:         util/arc
-Version:      2.7
+Version:      2.8
 URL:          http://www.unsatisfactorysoftware.co.uk ; http://www.7-zip.org
 Architecture: ppc-amigaos >= 4.0.0 ; m68k-amigaos >= 2.0.4
 Requires:     util/arc/xadmaster020.lha
@@ -34,6 +34,10 @@ Martin Merz (www.masonicons.de), the others are 256 colour icons by Ken "Ken's
 Icons" Lester.
 
 HISTORY
+
+2.8 (28.10.2017) ELEVENTH RELEASE
+- Updated to LZMA SDK 16.04
+- Fixed datestamps on archived files
 
 2.7 (14.05.2016) TENTH RELEASE
 - Updated to LZMA SDK 16.00
